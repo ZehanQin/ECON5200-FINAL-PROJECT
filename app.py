@@ -255,7 +255,7 @@ fig.add_hline(
     y=RCT_BENCHMARK,
     line_dash="dash",
     line_color="green",
-    annotation_text=f"RCT Benchmark (\\${RCT_BENCHMARK:,.0f})",
+    annotation_text=f"RCT Benchmark (${RCT_BENCHMARK:,.0f})",
     annotation_position="right"
 )
 
