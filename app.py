@@ -293,12 +293,15 @@ Naive OLS gives the wrong *direction* because of severe selection bias.
 DML corrects the bias and aligns with the RCT benchmark.
 """)
 
+# Note: RCT benchmark shown as a point estimate (reference value), not with a confidence
+# interval, because the published experimental estimate does not have a documented SE here.
+# Other methods are plotted with their actual 95% CIs from the analysis.
 methods_df = pd.DataFrame({
     'Method': ['Naive OLS (no controls)', 'OLS with controls',
                'DML (GBR nuisance)', 'DML (RF nuisance)', 'RCT Benchmark'],
     'Estimate': [NAIVE_OLS, OLS_CONTROLS, ROBUST_ATE_GBR, BASELINE_ATE, RCT_BENCHMARK],
-    'CI Lower': [-9893.16, -374.30, -814.46, 229.04, RCT_BENCHMARK - 800],
-    'CI Upper': [-7101.88, 1772.56, 1542.79, 2852.69, RCT_BENCHMARK + 800],
+    'CI Lower': [-9893.16, -374.30, -814.46, 229.04, RCT_BENCHMARK],
+    'CI Upper': [-7101.88, 1772.56, 1542.79, 2852.69, RCT_BENCHMARK],
     'Type': ['Biased', 'Biased', 'Causal', 'Causal (primary)', 'Benchmark']
 })
 
@@ -311,7 +314,14 @@ colors_map = {
     'Benchmark': '#3498db'
 }
 
+# Track which legend entries we've already shown
+shown_legend_types = set()
+
 for _, row in methods_df.iterrows():
+    show_in_legend = row['Type'] not in shown_legend_types
+    if show_in_legend:
+        shown_legend_types.add(row['Type'])
+
     fig_compare.add_trace(go.Scatter(
         x=[row['Method']],
         y=[row['Estimate']],
@@ -326,7 +336,7 @@ for _, row in methods_df.iterrows():
         mode='markers',
         marker=dict(size=18, color=colors_map[row['Type']]),
         name=row['Type'],
-        showlegend=row['Type'] not in [t.name for t in fig_compare.data]
+        showlegend=show_in_legend
     ))
 
 fig_compare.add_hline(y=0, line_dash="dot", line_color="gray")
@@ -334,7 +344,7 @@ fig_compare.add_hline(
     y=RCT_BENCHMARK,
     line_dash="dash",
     line_color="green",
-    annotation_text="RCT Benchmark",
+    annotation_text="RCT Benchmark (reference)",
     annotation_position="right"
 )
 
@@ -347,6 +357,11 @@ fig_compare.update_layout(
 )
 
 st.plotly_chart(fig_compare, use_container_width=True)
+
+st.caption(
+    "*Error bars show 95% confidence intervals for the estimated methods. "
+    "The RCT benchmark is shown as a point estimate (reference value) without a confidence interval.*"
+)
 
 # ============================================================
 # ROI Analysis
