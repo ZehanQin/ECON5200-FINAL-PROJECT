@@ -158,7 +158,7 @@ col3.metric(
 col4.metric(
     label="RCT Benchmark",
     value=f"${RCT_BENCHMARK:,.0f}",
-    help="Ground truth from original randomized experiment"
+    help="Benchmark from the original NSW randomized experiment"
 )
 
 # Interpretation
@@ -299,7 +299,7 @@ methods_df = pd.DataFrame({
     'Estimate': [NAIVE_OLS, OLS_CONTROLS, ROBUST_ATE_GBR, BASELINE_ATE, RCT_BENCHMARK],
     'CI Lower': [-9893.16, -374.30, -814.46, 229.04, RCT_BENCHMARK - 800],
     'CI Upper': [-7101.88, 1772.56, 1542.79, 2852.69, RCT_BENCHMARK + 800],
-    'Type': ['Biased', 'Biased', 'Causal', 'Causal (primary)', 'Ground Truth']
+    'Type': ['Biased', 'Biased', 'Causal', 'Causal (primary)', 'Benchmark']
 })
 
 fig_compare = go.Figure()
@@ -308,7 +308,7 @@ colors_map = {
     'Biased': '#e74c3c',
     'Causal': '#f39c12',
     'Causal (primary)': '#2ecc71',
-    'Ground Truth': '#3498db'
+    'Benchmark': '#3498db'
 }
 
 for _, row in methods_df.iterrows():
@@ -334,7 +334,7 @@ fig_compare.add_hline(
     y=RCT_BENCHMARK,
     line_dash="dash",
     line_color="green",
-    annotation_text="RCT Truth",
+    annotation_text="RCT Benchmark",
     annotation_position="right"
 )
 
