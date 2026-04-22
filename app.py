@@ -366,7 +366,8 @@ col1.metric(
 col2.metric(
     "Net Benefit per Participant",
     f"${net_benefit:,.0f}",
-    delta=f"{'Positive ROI' if net_benefit > 0 else 'Negative ROI'}"
+    delta=f"${net_benefit:,.0f} vs. cost" if net_benefit != 0 else None,
+    delta_color="normal"
 )
 col3.metric(
     "Payback Period",
@@ -415,7 +416,7 @@ with st.expander("⚠️ Key Assumptions and Threats to Identification"):
     3. **External Validity:** Data is from 1975-1978. Modern labor markets and training
        programs differ substantially.
 
-    4. **Specification Sensitivity:** RF ($1,541) and GBR ($365) nuisance models give
+    4. **Specification Sensitivity:** RF (\\$1,541) and GBR (\\$365) nuisance models give
        different point estimates. The directional conclusion is robust; magnitude is not.
 
     **Validation:** The RF-DML estimate (\\$1,541) is close to the RCT benchmark (\\$1,794),
