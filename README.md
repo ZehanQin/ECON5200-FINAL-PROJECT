@@ -74,7 +74,7 @@ A predictive Random Forest trained on the same data achieves **R² = 0.42** — 
 ```
 ECON5200-FINAL-PROJECT/
 ├── README.md                                  ← You are here
-├── requirements.txt                           ← Python dependencies
+├── requirements.txt                           ← Streamlit dashboard dependencies
 ├── app.py                                     ← Streamlit dashboard (deployed)
 ├── checkpoint/                                ← Apr 19 checkpoint submission
 │   ├── Research_Proposal.pdf
@@ -105,8 +105,18 @@ cd ECON5200-FINAL-PROJECT
 python -m venv venv
 source venv/bin/activate        # macOS / Linux
 # venv\Scripts\activate         # Windows
+```
 
+**For the Streamlit dashboard** (lightweight — only needs `streamlit`, `pandas`, `numpy`, `plotly`):
+
+```bash
 pip install -r requirements.txt
+```
+
+**To additionally run the analysis notebook** (needs `econml`, `causaldata`, `scikit-learn`, `matplotlib`):
+
+```bash
+pip install econml causaldata scikit-learn matplotlib jupyter
 ```
 
 ### 3. Run the analysis notebook
