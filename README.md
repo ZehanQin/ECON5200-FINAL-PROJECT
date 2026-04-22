@@ -3,28 +3,30 @@
 **A Causal Analysis of the NSW Program Using Double Machine Learning**
 
 [![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://www.python.org/)
-[![Streamlit](https://img.shields.io/badge/Streamlit-Deployed-FF4B4B.svg)](https://econ5200-final-project-3mvbvspgbtb9vn7gnj63a3.streamlit.app)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Streamlit](https://img.shields.io/badge/Streamlit-Live_Demo-FF4B4B.svg)](https://econ5200-final-project-3mvbvspgbtb9vn7gnj63a3.streamlit.app)
+[![Method](https://img.shields.io/badge/Method-Double_ML-1F3864.svg)](https://arxiv.org/abs/1608.00060)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 > **Course:** ECON 5200 — Causal Machine Learning & Applied Analytics
 > **Institution:** Northeastern University, Spring 2026
 > **Author:** Zehan Qin
 > **Client (hypothetical):** U.S. Department of Labor
 
+**🔗 Live Dashboard:** https://econ5200-final-project-3mvbvspgbtb9vn7gnj63a3.streamlit.app
+
 ---
 
 ## 📌 Headline Result
 
-| Metric | Estimate | 95% CI |
-|---|---|---|
-| **Primary ATE (DML + Random Forest)** | **$1,541** | **[$229, $2,853]** |
-| Robustness ATE (DML + Gradient Boosting) | $365 | [−$814, $1,543] |
-| Experimental RCT benchmark | $1,794 | (reference) |
-| Naive OLS (no controls) | −$8,498 | [−$9,893, −$7,102] |
+| Method | Estimate | 95% CI | Interpretation |
+|---|---|---|---|
+| Naive OLS (no controls) | −$8,498 | [−$9,893, −$7,102] | ❌ Wrong direction |
+| OLS + 8 controls | $699 | [−$374, $1,773] | ⚠️ Right direction, too small |
+| DML (GBR nuisance) | $365 | [−$814, $1,543] | ⚠️ Robustness check; CI crosses 0 |
+| **DML (RF) — primary** | **$1,541** | **[$229, $2,853]** | ✅ **CI excludes 0** |
+| RCT benchmark | $1,794 | (experimental) | 🎯 Validation target |
 
 The causal DML estimate is **statistically significant** and **closely aligned** with the experimental benchmark — validating the observational identification strategy.
-
-**🔗 Interactive Dashboard:** https://econ5200-final-project-3mvbvspgbtb9vn7gnj63a3.streamlit.app
 
 ---
 
@@ -34,13 +36,14 @@ The causal DML estimate is **statistically significant** and **closely aligned**
 
 Answering this is harder than it looks. A naive comparison of treated vs. untreated workers yields **−$8,498** — suggesting training *reduces* earnings. This is wrong, and the direction is wrong, because NSW participants were selected precisely because they had the weakest labor market histories (pre-treatment earnings of $2,096 vs. $14,017 for CPS controls).
 
-This project uses **Double Machine Learning (DML)** (Chernozhukov et al., 2018) to recover the causal effect while correcting for the severe selection bias.
+This project uses **Double Machine Learning (DML)** (Chernozhukov et al., 2018) to recover the causal effect while correcting for severe selection bias, then validates the result against the original NSW randomized experiment.
 
 ---
 
 ## 🧪 Methodology
 
 **Identification strategy:** Double Machine Learning with cross-fitting
+
 - **Outcome model** `g(X) = E[Y | X]`: RandomForestRegressor / GradientBoostingRegressor
 - **Treatment model** `m(X) = P(T = 1 | X)`: RandomForestClassifier / GradientBoostingClassifier
 - Second stage: regress residuals `Y − g(X)` on `T − m(X)` to recover ATE
@@ -48,11 +51,21 @@ This project uses **Double Machine Learning (DML)** (Chernozhukov et al., 2018) 
 
 **Key identifying assumption:** Conditional independence (unconfoundedness)
 
-$$\{Y(0), Y(1)\} \perp T \mid X$$
+```
+{Y(0), Y(1)} ⊥ T | X
+```
 
 Given covariates X (age, education, race, marital status, pre-treatment earnings), treatment assignment is independent of potential outcomes.
 
-**Why not other methods?** IV (no plausible instrument), DiD (thin panel), PSM (unstable across comparison groups per Smith & Todd 2005), RCT (not available in the observational sample).
+**Why not other methods?** IV (no plausible instrument), DiD (thin panel), PSM (unstable across comparison groups per Smith & Todd 2005), RCT (not available in the constructed observational sample).
+
+---
+
+## 💡 Why This Project Matters: Prediction vs. Causation
+
+A predictive Random Forest trained on the same data achieves **R² = 0.42** — respectable predictive performance. But the feature importance of `treat` is only **0.0025**, nearly the lowest of all features. A policy analyst reading a predictive model output could wrongly conclude the training program is irrelevant to earnings.
+
+**The causal DML estimate tells the opposite story.** For policy questions — where the goal is to decide whether to change something, not merely forecast it — causal methods are indispensable.
 
 ---
 
@@ -60,18 +73,19 @@ Given covariates X (age, education, race, marital status, pre-treatment earnings
 
 ```
 ECON5200-FINAL-PROJECT/
-├── README.md                          # You are here
-├── requirements.txt                   # Python dependencies
-├── app.py                             # Streamlit dashboard (deployed)
-├── Research_Proposal.pdf              # Checkpoint proposal (Apr 19)
-├── notebooks/
-│   └── Zehan_Qin_ECON5200_Final_Project_COMPLETE_v5.ipynb
-├── deliverables/                      # Final submission PDFs
-│   ├── Executive_Summary.pdf
-│   ├── Technical_Report.pdf
-│   ├── Threats_to_Identification.pdf
-│   └── AI_Methodology_Appendix.pdf
-└── .gitignore
+├── README.md                                  ← You are here
+├── requirements.txt                           ← Python dependencies
+├── app.py                                     ← Streamlit dashboard (deployed)
+├── checkpoint/                                ← Apr 19 checkpoint submission
+│   ├── Research_Proposal.pdf
+│   └── checkpoint_ECON5200_Final_Project_v2.ipynb
+├── final_complete_notebooks/                  ← Final analysis notebook
+│   └── Zehan_Qin_ECON5200_Final_Project_COMPLETE_v6.ipynb
+└── deliverables/                              ← Final submission PDFs
+    ├── Executive_Summary.pdf
+    ├── Technical_Report.pdf
+    ├── Threats_to_Identification.pdf
+    └── AI_Methodology_Appendix.pdf
 ```
 
 ---
@@ -98,7 +112,7 @@ pip install -r requirements.txt
 ### 3. Run the analysis notebook
 
 ```bash
-jupyter notebook notebooks/Zehan_Qin_ECON5200_Final_Project_COMPLETE_v5.ipynb
+jupyter notebook final_complete_notebooks/Zehan_Qin_ECON5200_Final_Project_COMPLETE_v6.ipynb
 ```
 
 Executing all cells reproduces the full analysis: data loading, balance checks, naive benchmarks, primary DML estimate, robustness checks, and all figures.
@@ -127,14 +141,26 @@ The NSW experimental control group is deliberately discarded to simulate a reali
 
 ---
 
+## 🎛️ Interactive Dashboard
+
+The deployed [Streamlit dashboard](https://econ5200-final-project-3mvbvspgbtb9vn7gnj63a3.streamlit.app) supports:
+
+- **Parameter sliders** — treatment intensity multiplier, confidence level, nuisance model, program cost, effect persistence
+- **Dynamic confidence intervals** — uncertainty bounds update in real time as parameters change
+- **Counterfactual scenarios** — "If treatment intensity changes by X%, estimated effect becomes Y (CI: [a, b])"
+- **Method comparison chart** — naive vs. causal estimates side-by-side
+- **ROI calculator** — payback period, net benefit per participant, break-even analysis
+
+---
+
 ## 📑 Deliverables
 
 | Deliverable | File | Purpose |
 |---|---|---|
-| Executive Summary (1 page) | `deliverables/Executive_Summary.pdf` | SCR-structured decision memo for the client |
-| Technical Report (8 pages) | `deliverables/Technical_Report.pdf` | Full methodology, results, robustness |
-| Threats to Identification | `deliverables/Threats_to_Identification.pdf` | Honest assessment of what could invalidate the causal claim |
-| AI Methodology Appendix | `deliverables/AI_Methodology_Appendix.pdf` | P.R.I.M.E. documentation of AI-assisted workflow |
+| Executive Summary | [`deliverables/Executive_Summary.pdf`](deliverables/Executive_Summary.pdf) | SCR-structured 1-page decision memo |
+| Technical Report | [`deliverables/Technical_Report.pdf`](deliverables/Technical_Report.pdf) | 8-page methodology, results, robustness |
+| Threats to Identification | [`deliverables/Threats_to_Identification.pdf`](deliverables/Threats_to_Identification.pdf) | Honest adversarial assessment |
+| AI Methodology Appendix | [`deliverables/AI_Methodology_Appendix.pdf`](deliverables/AI_Methodology_Appendix.pdf) | P.R.I.M.E. documentation of AI-assisted workflow |
 | Streamlit Dashboard | [Live deployment](https://econ5200-final-project-3mvbvspgbtb9vn7gnj63a3.streamlit.app) | Interactive what-if scenarios |
 
 ---
@@ -145,8 +171,9 @@ The NSW experimental control group is deliberately discarded to simulate a reali
 2. **Overlap violation.** |SMD| up to 2.43; DML may extrapolate into regions with no treated units.
 3. **External validity.** Data is 1975–1978; modern labor markets and training technologies differ substantially.
 4. **Specification sensitivity.** RF and GBR nuisance models yield a factor-of-four difference in point estimates; directional conclusion is robust, magnitude is not.
+5. **ROI is conditional.** At the dashboard's default 5-year persistence assumption, net benefit is negative (−$4,796). The program delivers positive social returns only under sustained-effect assumptions (8+ years).
 
-See `deliverables/Threats_to_Identification.pdf` for the full adversarial analysis.
+See [`deliverables/Threats_to_Identification.pdf`](deliverables/Threats_to_Identification.pdf) for the full adversarial analysis.
 
 ---
 
@@ -162,7 +189,7 @@ See `deliverables/Threats_to_Identification.pdf` for the full adversarial analys
 
 ## 🛠️ Tech Stack
 
-`Python 3.10` · `pandas` · `numpy` · `scikit-learn` · `econml` · `causaldata` · `matplotlib` · `streamlit`
+`Python 3.10` · `pandas` · `numpy` · `scikit-learn` · `econml` · `causaldata` · `matplotlib` · `plotly` · `streamlit`
 
 ---
 
@@ -172,4 +199,4 @@ MIT License — feel free to reuse this code with attribution.
 
 ---
 
-*This project was completed for ECON 5200 at Northeastern University, Spring 2026. AI tools (Claude) were used for code generation, drafting, and methodology review; all causal interpretation and final decisions are the author's own. See the AI Methodology Appendix for full P.R.I.M.E. documentation.*
+*This project was completed for ECON 5200 at Northeastern University, Spring 2026. AI tools (Claude) were used for code generation, drafting, and methodology review; all causal interpretation and final decisions are the author's own. See the [AI Methodology Appendix](deliverables/AI_Methodology_Appendix.pdf) for full P.R.I.M.E. documentation.*
